@@ -1,0 +1,33 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    
+     
+     
+    public function up(): void
+    {
+        Schema::create('user_cvs', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->string('path');
+            $table->string('original_name');
+            $table->string('mime_type');
+            $table->integer('size');
+            $table->json('extracted_data')->nullable(); // Pour stocker le texte extrait et les résumés (bonus)
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('user_cvs');
+    }
+};
