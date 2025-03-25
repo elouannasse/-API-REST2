@@ -15,7 +15,7 @@ class CandidatureController extends Controller
 {
     public function index()
     {
-        $user = Auth::user();
+        $user = Auth::guard('api')->user();
 
         if ($user->is_admin) {
             $candidatures = Candidature::with(['user', 'offre'])->paginate(10);
@@ -46,7 +46,7 @@ class CandidatureController extends Controller
             ], 400);
         }
 
-        $existingCandidature = Candidature::where('user_id', Auth::id())
+        $existingCandidature = Candidature::where('user_id', Auth::guard('api')->id())
             ->where('offre_id', $request->offre_id)
             ->first();
 
@@ -58,7 +58,7 @@ class CandidatureController extends Controller
         }
 
         $cv = UserCV::where('id', $request->cv_id)
-            ->where('user_id', Auth::id())
+            ->where('user_id', Auth::guard('api')->id())
             ->first();
 
         if (!$cv) {
@@ -69,7 +69,7 @@ class CandidatureController extends Controller
         }
 
         $candidature = Candidature::create([
-            'user_id' => Auth::id(),
+            'user_id' => Auth::guard('api')->id(),
             'offre_id' => $request->offre_id,
             'cv_path' => $cv->path,
             'status' => 'pending'
@@ -93,7 +93,7 @@ class CandidatureController extends Controller
         ]);
 
         $cv = UserCV::where('id', $request->cv_id)
-            ->where('user_id', Auth::id())
+            ->where('user_id', Auth::guard('api')->id())
             ->first();
 
         if (!$cv) {
@@ -104,7 +104,7 @@ class CandidatureController extends Controller
         }
 
         ProcessBulkCandidaturesJob::dispatch(
-            Auth::id(),
+            Auth::guard('api')->id(),
             $request->offre_ids,
             $cv->path
         );
@@ -117,7 +117,7 @@ class CandidatureController extends Controller
 
     public function show($id)
     {
-        $user = Auth::user();
+        $user = Auth::guard('api')->user();
 
         if ($user->is_admin) {
             $candidature = Candidature::with(['user', 'offre'])->find($id);
@@ -143,7 +143,7 @@ class CandidatureController extends Controller
 
     public function updateStatus(Request $request, $id)
     {
-        if (!Auth::user()->is_admin) {
+        if (!Auth::guard('api')->user()->is_admin) {
             return response()->json([
                 'success' => false,
                 'message' => 'Action non autorisée.'
@@ -176,7 +176,7 @@ class CandidatureController extends Controller
     public function cancel($id)
     {
         $candidature = Candidature::where('id', $id)
-            ->where('user_id', Auth::id())
+            ->where('user_id', Auth::guard('api')->id())
             ->first();
 
         if (!$candidature) {

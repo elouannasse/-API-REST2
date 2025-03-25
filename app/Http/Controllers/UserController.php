@@ -12,10 +12,10 @@ class UserController extends Controller
     public function register(Request $request){
         $request->validate([
            'name'=>'required|string|max:255',
-            "email"=>'required|email|max:255|unique:users,email',
+            "email"=>'required|email|max:255',
             'password'=>'required|string|min:8',
             'phone_number'=>'nullable|string|max:20',
-            'skills'=>'nullable|array'
+            'skills'=>'nullable'
         ]);
         
         $user = User::create([
@@ -27,14 +27,14 @@ class UserController extends Controller
         ]);
         
         // Génération du token JWT après création de l'utilisateur
-        $token = Auth::guard('api')->login($user);
+        $token = Auth::guard('api')->login($user); 
         
-        return response()->json([
-            'message'=>'user Registered successful',
+        return response()->json([ 
+            'message'=>'user Registered successful',  
             'user'=>$user,
-            'access_token' => $token,
+            'access_token' => $token, 
             'token_type' => 'bearer',
-            'expires_in' => auth('api')->factory()->getTTL() * 60
+            'expires_in' => auth('api')->factory()->getTTL() * 60  
         ], 201);
     }
 
